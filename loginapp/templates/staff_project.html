@@ -1,0 +1,1068 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
+
+    <title>{{ project.project_name }} | LU-TODO</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    >
+
+    <style>
+        :root {
+            --lu-green: #123c34;
+            --lu-green-dark: #0d2e28;
+            --page-background: #f5f7f6;
+        }
+
+        body {
+            min-height: 100vh;
+            background-color: var(--page-background);
+        }
+
+        .navbar-lu {
+            background-color: var(--lu-green);
+        }
+
+        .project-header {
+            color: white;
+            border-radius: 1rem;
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--lu-green),
+                    #1d5c50
+                );
+        }
+
+        .btn-lu {
+            color: white;
+            background-color: var(--lu-green);
+            border-color: var(--lu-green);
+        }
+
+        .btn-lu:hover,
+        .btn-lu:focus {
+            color: white;
+            background-color: var(--lu-green-dark);
+            border-color: var(--lu-green-dark);
+        }
+
+        .stat-card,
+        .task-card {
+            border: 0;
+            border-radius: 0.9rem;
+        }
+
+        .task-card {
+            border-left: 5px solid #6c757d;
+            transition:
+                transform 0.15s ease,
+                box-shadow 0.15s ease;
+        }
+
+        .task-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0.5rem 1.2rem rgba(0, 0, 0, 0.08);
+        }
+
+        .task-card.priority-high {
+            border-left-color: #dc3545;
+        }
+
+        .task-card.priority-medium {
+            border-left-color: #ffc107;
+        }
+
+        .task-card.priority-low {
+            border-left-color: #198754;
+        }
+
+        .task-card.overdue {
+            background-color: #fff5f5;
+        }
+
+        .task-card.completed {
+            opacity: 0.75;
+        }
+
+        .task-card.completed .task-title {
+            text-decoration: line-through;
+        }
+
+        .task-description {
+            white-space: pre-wrap;
+        }
+
+        .empty-state {
+            padding: 4rem 1rem;
+            text-align: center;
+            border: 2px dashed #ced7d3;
+            border-radius: 1rem;
+            background-color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-lu">
+        <div class="container">
+
+            <a
+                class="navbar-brand fw-bold"
+                href="{{ url_for('staff_home') }}"
+            >
+                LU-TODO
+            </a>
+
+            <button
+                class="navbar-toggler"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#staffTaskNavigation"
+                aria-controls="staffTaskNavigation"
+                aria-expanded="false"
+                aria-label="Toggle navigation"
+            >
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div
+                class="collapse navbar-collapse"
+                id="staffTaskNavigation"
+            >
+                <ul class="navbar-nav ms-auto align-items-lg-center">
+
+                    <li class="nav-item">
+                        <a
+                            class="nav-link"
+                            href="{{ url_for('staff_home') }}"
+                        >
+                            <i class="bi bi-grid me-1"></i>
+                            Dashboard
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a
+                            class="nav-link"
+                            href="{{ url_for('profile') }}"
+                        >
+                            <i class="bi bi-person me-1"></i>
+                            Profile
+                        </a>
+                    </li>
+
+                    <li class="nav-item ms-lg-2 mt-2 mt-lg-0">
+                        <a
+                            class="btn btn-light"
+                            href="{{ url_for('logout') }}"
+                        >
+                            <i class="bi bi-box-arrow-right me-1"></i>
+                            Log out
+                        </a>
+                    </li>
+
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+
+    <main class="container py-4 py-lg-5">
+
+        <!-- Flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div
+                        class="alert alert-{{ category }} alert-dismissible fade show"
+                        role="alert"
+                    >
+                        {{ message }}
+
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="alert"
+                            aria-label="Close"
+                        ></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+
+        <!-- Project heading -->
+        <section class="project-header p-4 p-lg-5 mb-4">
+
+            <div
+                class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3"
+            >
+
+                <div>
+
+                    <a
+                        href="{{ url_for('staff_home') }}"
+                        class="text-white text-decoration-none opacity-75"
+                    >
+                        <i class="bi bi-arrow-left me-1"></i>
+                        Staff dashboard
+                    </a>
+
+                    <div class="mt-3">
+
+                        {% if project.is_owner %}
+
+                            <span class="badge text-bg-light mb-2">
+                                Your project
+                            </span>
+
+                        {% else %}
+
+                            <span class="badge text-bg-primary mb-2">
+                                Shared project
+                            </span>
+
+                        {% endif %}
+
+
+                        <h1 class="display-6 fw-bold mb-2">
+                            {{ project.project_name }}
+                        </h1>
+
+
+                        <p class="mb-2 opacity-75">
+
+                            {% if project.description %}
+                                {{ project.description }}
+                            {% else %}
+                                No project description.
+                            {% endif %}
+
+                        </p>
+
+
+                        {% if not project.is_owner %}
+
+                            <div class="small">
+
+                                <p class="mb-1">
+                                    Owner:
+                                    <strong>
+                                        {{ project.owner_first_name }}
+                                        {{ project.owner_last_name }}
+                                    </strong>
+                                </p>
+
+                                <p class="mb-1">
+                                    {{ project.owner_position }}
+                                </p>
+
+                                <p class="mb-0">
+                                    {{ project.owner_email }}
+                                </p>
+
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+                </div>
+
+
+                <div class="d-flex flex-column flex-sm-row gap-2">
+
+                    <button
+                        type="button"
+                        class="btn btn-light btn-lg"
+                        data-bs-toggle="modal"
+                        data-bs-target="#createTaskModal"
+                    >
+                        <i class="bi bi-plus-lg me-1"></i>
+                        Add task
+                    </button>
+
+                    {% if project.is_owner %}
+
+                        <button
+                            type="button"
+                            class="btn btn-outline-light btn-lg"
+                            disabled
+                            title="Member management will be added next"
+                        >
+                            <i class="bi bi-people me-1"></i>
+                            Members
+                        </button>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- Task statistics -->
+        <section class="mb-4">
+
+            <div class="row g-3">
+
+                <div class="col-6 col-lg-3">
+
+                    <div class="card stat-card shadow-sm h-100">
+
+                        <div class="card-body">
+
+                            <p class="text-secondary mb-1">
+                                Total tasks
+                            </p>
+
+                            <p class="h2 fw-bold mb-0">
+                                {{ statistics.total_count }}
+                            </p>
+
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="col-6 col-lg-3">
+
+                    <div class="card stat-card shadow-sm h-100">
+
+                        <div class="card-body">
+
+                            <p class="text-secondary mb-1">
+                                Incomplete
+                            </p>
+
+                            <p class="h2 fw-bold mb-0">
+                                {{ statistics.incomplete_count }}
+                            </p>
+
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="col-6 col-lg-3">
+
+                    <div class="card stat-card shadow-sm h-100">
+
+                        <div class="card-body">
+
+                            <p class="text-secondary mb-1">
+                                Complete
+                            </p>
+
+                            <p class="h2 fw-bold mb-0 text-success">
+                                {{ statistics.complete_count }}
+                            </p>
+
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="col-6 col-lg-3">
+
+                    <div class="card stat-card shadow-sm h-100">
+
+                        <div class="card-body">
+
+                            <p class="text-secondary mb-1">
+                                Overdue
+                            </p>
+
+                            <p
+                                class="h2 fw-bold mb-0{% if statistics.overdue_count > 0 %} text-danger{% endif %}"
+                            >
+                                {{ statistics.overdue_count }}
+                            </p>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- Task list -->
+        <section>
+
+            <div
+                class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-3"
+            >
+
+                <div>
+                    <h2 class="h3 mb-1">
+                        Project tasks
+                    </h2>
+
+                    <p class="text-secondary mb-0">
+                        Add, edit, complete, reopen, and delete tasks.
+                    </p>
+                </div>
+
+                <button
+                    type="button"
+                    class="btn btn-lu"
+                    data-bs-toggle="modal"
+                    data-bs-target="#createTaskModal"
+                >
+                    <i class="bi bi-plus-lg me-1"></i>
+                    Add task
+                </button>
+
+            </div>
+
+
+            {% if tasks %}
+
+                <div class="row g-3">
+
+                    {% for task in tasks %}
+
+                        <div class="col-12">
+
+                            <article
+                                class="
+                                    card task-card shadow-sm
+                                    priority-{{ task.priority }}
+                                    {% if task.is_overdue %}overdue{% endif %}
+                                    {% if task.is_complete %}completed{% endif %}
+                                "
+                            >
+
+                                <div class="card-body p-4">
+
+                                    <div
+                                        class="d-flex flex-column flex-lg-row justify-content-between gap-3"
+                                    >
+
+                                        <div class="flex-grow-1">
+
+                                            <div
+                                                class="d-flex flex-wrap align-items-center gap-2 mb-2"
+                                            >
+
+                                                <h3 class="h5 task-title mb-0">
+                                                    {{ task.task_name }}
+                                                </h3>
+
+
+                                                {% if task.priority == "high" %}
+
+                                                    <span class="badge text-bg-danger">
+                                                        High priority
+                                                    </span>
+
+                                                {% elif task.priority == "medium" %}
+
+                                                    <span class="badge text-bg-warning">
+                                                        Medium priority
+                                                    </span>
+
+                                                {% else %}
+
+                                                    <span class="badge text-bg-success">
+                                                        Low priority
+                                                    </span>
+
+                                                {% endif %}
+
+
+                                                {% if task.is_complete %}
+
+                                                    <span class="badge text-bg-secondary">
+                                                        Complete
+                                                    </span>
+
+                                                {% else %}
+
+                                                    <span class="badge text-bg-primary">
+                                                        Incomplete
+                                                    </span>
+
+                                                {% endif %}
+
+
+                                                {% if task.is_overdue %}
+
+                                                    <span class="badge text-bg-danger">
+
+                                                        <i class="bi bi-exclamation-triangle me-1"></i>
+
+                                                        Overdue
+
+                                                    </span>
+
+                                                {% endif %}
+
+                                            </div>
+
+
+                                            {% if task.description %}
+
+                                                <p class="task-description text-secondary mb-2">
+                                                    {{ task.description }}
+                                                </p>
+
+                                            {% else %}
+
+                                                <p class="text-secondary fst-italic mb-2">
+                                                    No description.
+                                                </p>
+
+                                            {% endif %}
+
+
+                                            <p class="small mb-0">
+
+                                                <i class="bi bi-calendar-event me-1"></i>
+
+                                                {% if task.due_date %}
+
+                                                    Due:
+
+                                                    <strong>
+                                                        {{ task.due_date.strftime("%d %B %Y") }}
+                                                    </strong>
+
+                                                {% else %}
+
+                                                    No due date
+
+                                                {% endif %}
+
+                                            </p>
+
+                                        </div>
+
+
+                                        <div
+                                            class="d-flex flex-wrap align-items-start gap-2"
+                                        >
+
+                                            <!-- Complete or reopen -->
+                                            <form
+                                                method="post"
+                                                action="{{ url_for(
+                                                    'staff_toggle_task',
+                                                    project_id=project.project_id,
+                                                    task_id=task.task_id
+                                                ) }}"
+                                            >
+
+                                                <button
+                                                    type="submit"
+                                                    class="
+                                                        btn
+                                                        {% if task.is_complete %}
+                                                            btn-outline-secondary
+                                                        {% else %}
+                                                            btn-outline-success
+                                                        {% endif %}
+                                                    "
+                                                >
+
+                                                    {% if task.is_complete %}
+
+                                                        <i class="bi bi-arrow-counterclockwise me-1"></i>
+                                                        Reopen
+
+                                                    {% else %}
+
+                                                        <i class="bi bi-check-lg me-1"></i>
+                                                        Complete
+
+                                                    {% endif %}
+
+                                                </button>
+
+                                            </form>
+
+
+                                            <!-- Edit task -->
+                                            <button
+                                                type="button"
+                                                class="btn btn-outline-primary"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#editTaskModal{{ task.task_id }}"
+                                            >
+                                                <i class="bi bi-pencil me-1"></i>
+                                                Edit
+                                            </button>
+
+
+                                            <!-- Delete task -->
+                                            <form
+                                                method="post"
+                                                action="{{ url_for(
+                                                    'staff_delete_task',
+                                                    project_id=project.project_id,
+                                                    task_id=task.task_id
+                                                ) }}"
+                                                onsubmit="return confirm(
+                                                    'Delete this task? This action cannot be undone.'
+                                                );"
+                                            >
+
+                                                <button
+                                                    type="submit"
+                                                    class="btn btn-outline-danger"
+                                                >
+                                                    <i class="bi bi-trash me-1"></i>
+                                                    Delete
+                                                </button>
+
+                                            </form>
+
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </article>
+                        </div>
+
+
+                        <!-- Edit task modal -->
+                        <div
+                            class="modal fade"
+                            id="editTaskModal{{ task.task_id }}"
+                            tabindex="-1"
+                            aria-labelledby="editTaskModalLabel{{ task.task_id }}"
+                            aria-hidden="true"
+                        >
+                            <div class="modal-dialog modal-dialog-centered">
+
+                                <div class="modal-content">
+
+                                    <form
+                                        method="post"
+                                        action="{{ url_for(
+                                            'staff_edit_task',
+                                            project_id=project.project_id,
+                                            task_id=task.task_id
+                                        ) }}"
+                                    >
+
+                                        <div class="modal-header">
+
+                                            <h2
+                                                class="modal-title fs-5"
+                                                id="editTaskModalLabel{{ task.task_id }}"
+                                            >
+                                                Edit task
+                                            </h2>
+
+                                            <button
+                                                type="button"
+                                                class="btn-close"
+                                                data-bs-dismiss="modal"
+                                                aria-label="Close"
+                                            ></button>
+
+                                        </div>
+
+
+                                        <div class="modal-body">
+
+                                            <div class="mb-3">
+
+                                                <label
+                                                    for="edit_task_name_{{ task.task_id }}"
+                                                    class="form-label"
+                                                >
+                                                    Task name
+                                                </label>
+
+                                                <input
+                                                    type="text"
+                                                    class="form-control"
+                                                    id="edit_task_name_{{ task.task_id }}"
+                                                    name="task_name"
+                                                    maxlength="200"
+                                                    value="{{ task.task_name }}"
+                                                    required
+                                                >
+
+                                            </div>
+
+
+                                            <div class="mb-3">
+
+                                                <label
+                                                    for="edit_description_{{ task.task_id }}"
+                                                    class="form-label"
+                                                >
+                                                    Description
+                                                    <span class="text-secondary">
+                                                        (optional)
+                                                    </span>
+                                                </label>
+
+                                                <textarea
+                                                    class="form-control"
+                                                    id="edit_description_{{ task.task_id }}"
+                                                    name="description"
+                                                    rows="4"
+                                                    maxlength="2000"
+                                                >{{ task.description or "" }}</textarea>
+
+                                            </div>
+
+
+                                            <div class="row g-3">
+
+                                                <div class="col-md-6">
+
+                                                    <label
+                                                        for="edit_priority_{{ task.task_id }}"
+                                                        class="form-label"
+                                                    >
+                                                        Priority
+                                                    </label>
+
+                                                    <select
+                                                        class="form-select"
+                                                        id="edit_priority_{{ task.task_id }}"
+                                                        name="priority"
+                                                        required
+                                                    >
+
+                                                        <option
+                                                            value="low"
+                                                            {% if task.priority == "low" %}selected{% endif %}
+                                                        >
+                                                            Low
+                                                        </option>
+
+                                                        <option
+                                                            value="medium"
+                                                            {% if task.priority == "medium" %}selected{% endif %}
+                                                        >
+                                                            Medium
+                                                        </option>
+
+                                                        <option
+                                                            value="high"
+                                                            {% if task.priority == "high" %}selected{% endif %}
+                                                        >
+                                                            High
+                                                        </option>
+
+                                                    </select>
+
+                                                </div>
+
+
+                                                <div class="col-md-6">
+
+                                                    <label
+                                                        for="edit_due_date_{{ task.task_id }}"
+                                                        class="form-label"
+                                                    >
+                                                        Due date
+                                                    </label>
+
+                                                    <input
+                                                        type="date"
+                                                        class="form-control"
+                                                        id="edit_due_date_{{ task.task_id }}"
+                                                        name="due_date"
+                                                        value="{% if task.due_date %}{{ task.due_date.isoformat() }}{% endif %}"
+                                                    >
+
+                                                </div>
+
+                                            </div>
+
+
+                                            <div class="form-check mt-3">
+
+                                                <input
+                                                    class="form-check-input"
+                                                    type="checkbox"
+                                                    id="edit_complete_{{ task.task_id }}"
+                                                    name="is_complete"
+                                                    {% if task.is_complete %}checked{% endif %}
+                                                >
+
+                                                <label
+                                                    class="form-check-label"
+                                                    for="edit_complete_{{ task.task_id }}"
+                                                >
+                                                    Task is complete
+                                                </label>
+
+                                            </div>
+
+                                        </div>
+
+
+                                        <div class="modal-footer">
+
+                                            <button
+                                                type="button"
+                                                class="btn btn-outline-secondary"
+                                                data-bs-dismiss="modal"
+                                            >
+                                                Cancel
+                                            </button>
+
+                                            <button
+                                                type="submit"
+                                                class="btn btn-lu"
+                                            >
+                                                <i class="bi bi-check-lg me-1"></i>
+                                                Save changes
+                                            </button>
+
+                                        </div>
+
+                                    </form>
+
+                                </div>
+                            </div>
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            {% else %}
+
+                <div class="empty-state">
+
+                    <i class="bi bi-list-check display-3 text-secondary"></i>
+
+                    <h3 class="h5 mt-3">
+                        No tasks in this project
+                    </h3>
+
+                    <p class="text-secondary">
+                        Add the first task to begin managing this project.
+                    </p>
+
+                    <button
+                        type="button"
+                        class="btn btn-lu"
+                        data-bs-toggle="modal"
+                        data-bs-target="#createTaskModal"
+                    >
+                        <i class="bi bi-plus-lg me-1"></i>
+                        Add the first task
+                    </button>
+
+                </div>
+
+            {% endif %}
+
+        </section>
+
+    </main>
+
+
+    <!-- Add task modal -->
+    <div
+        class="modal fade"
+        id="createTaskModal"
+        tabindex="-1"
+        aria-labelledby="createTaskModalLabel"
+        aria-hidden="true"
+    >
+        <div class="modal-dialog modal-dialog-centered">
+
+            <div class="modal-content">
+
+                <form
+                    method="post"
+                    action="{{ url_for(
+                        'staff_create_task',
+                        project_id=project.project_id
+                    ) }}"
+                >
+
+                    <div class="modal-header">
+
+                        <h2
+                            class="modal-title fs-5"
+                            id="createTaskModalLabel"
+                        >
+                            Add task
+                        </h2>
+
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"
+                        ></button>
+
+                    </div>
+
+
+                    <div class="modal-body">
+
+                        <div class="mb-3">
+
+                            <label
+                                for="task_name"
+                                class="form-label"
+                            >
+                                Task name
+                                <span class="text-danger">*</span>
+                            </label>
+
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="task_name"
+                                name="task_name"
+                                maxlength="200"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="mb-3">
+
+                            <label
+                                for="task_description"
+                                class="form-label"
+                            >
+                                Description
+                                <span class="text-secondary">
+                                    (optional)
+                                </span>
+                            </label>
+
+                            <textarea
+                                class="form-control"
+                                id="task_description"
+                                name="description"
+                                rows="4"
+                                maxlength="2000"
+                            ></textarea>
+
+                        </div>
+
+
+                        <div class="row g-3">
+
+                            <div class="col-md-6">
+
+                                <label
+                                    for="priority"
+                                    class="form-label"
+                                >
+                                    Priority
+                                    <span class="text-danger">*</span>
+                                </label>
+
+                                <select
+                                    class="form-select"
+                                    id="priority"
+                                    name="priority"
+                                    required
+                                >
+
+                                    <option value="">
+                                        Select priority
+                                    </option>
+
+                                    <option value="low">
+                                        Low
+                                    </option>
+
+                                    <option value="medium">
+                                        Medium
+                                    </option>
+
+                                    <option value="high">
+                                        High
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <div class="col-md-6">
+
+                                <label
+                                    for="due_date"
+                                    class="form-label"
+                                >
+                                    Due date
+                                    <span class="text-secondary">
+                                        (optional)
+                                    </span>
+                                </label>
+
+                                <input
+                                    type="date"
+                                    class="form-control"
+                                    id="due_date"
+                                    name="due_date"
+                                >
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="modal-footer">
+
+                        <button
+                            type="button"
+                            class="btn btn-outline-secondary"
+                            data-bs-dismiss="modal"
+                        >
+                            Cancel
+                        </button>
+
+                        <button
+                            type="submit"
+                            class="btn btn-lu"
+                        >
+                            <i class="bi bi-plus-lg me-1"></i>
+                            Add task
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    ></script>
+
+</body>
+</html>

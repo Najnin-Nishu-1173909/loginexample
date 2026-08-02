@@ -23,4 +23,6 @@ from . import profile
 from . import student
 from . import student_tasks
 from . import staff
+from . import staff_tasks
+from . import staff_sharing
 from . import admin
