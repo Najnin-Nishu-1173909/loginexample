@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
 
@@ -10,11 +11,13 @@
 
     <title>Student Dashboard | LU-TODO</title>
 
+    <!-- Bootstrap CSS -->
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
         rel="stylesheet"
     >
 
+    <!-- Bootstrap Icons -->
     <link
         rel="stylesheet"
         href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
@@ -29,8 +32,8 @@
         }
 
         body {
+            min-height: 100vh;
             background-color: var(--page-background);
-            color: #212529;
         }
 
         .navbar-lu {
@@ -42,17 +45,18 @@
         }
 
         .dashboard-header {
+            color: white;
+            border-radius: 1rem;
             background:
                 linear-gradient(
                     135deg,
                     var(--lu-green),
                     #1d5c50
                 );
-            color: white;
-            border-radius: 1rem;
         }
 
         .stat-card {
+            height: 100%;
             border: 0;
             border-radius: 0.9rem;
             transition:
@@ -62,7 +66,7 @@
 
         .stat-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 0.5rem 1.3rem rgba(0, 0, 0, 0.08);
+            box-shadow: 0 0.5rem 1.2rem rgba(0, 0, 0, 0.08);
         }
 
         .stat-icon {
@@ -71,15 +75,16 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
+            flex-shrink: 0;
             border-radius: 0.8rem;
             font-size: 1.35rem;
-            background-color: var(--lu-green-light);
             color: var(--lu-green);
+            background-color: var(--lu-green-light);
         }
 
         .project-card {
             height: 100%;
-            border: 1px solid #dfe5e2;
+            border: 0;
             border-radius: 0.9rem;
             transition:
                 transform 0.15s ease,
@@ -93,11 +98,7 @@
 
         .project-description {
             min-height: 3rem;
-        }
-
-        .badge-owned {
-            color: var(--lu-green);
-            background-color: var(--lu-green-light);
+            white-space: pre-wrap;
         }
 
         .section-heading {
@@ -117,25 +118,40 @@
             border-color: var(--lu-green-dark);
         }
 
+        .badge-owned {
+            color: var(--lu-green);
+            background-color: var(--lu-green-light);
+        }
+
         .empty-state {
-            padding: 3rem 1rem;
+            padding: 3.5rem 1rem;
             text-align: center;
             border: 2px dashed #ced7d3;
             border-radius: 0.9rem;
             background-color: white;
         }
 
-        .empty-state-icon {
-            font-size: 2.7rem;
-            color: #81928b;
+        .progress {
+            height: 7px;
+            background-color: #e9ecef;
+        }
+
+        .progress-bar-lu {
+            background-color: var(--lu-green);
+        }
+
+        .project-owner {
+            font-size: 0.9rem;
         }
     </style>
 </head>
 
 <body>
-    <!-- Main navigation -->
+
+    <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark navbar-lu">
         <div class="container">
+
             <a
                 class="navbar-brand fw-bold"
                 href="{{ url_for('student_home') }}"
@@ -160,6 +176,7 @@
                 id="studentNavigation"
             >
                 <ul class="navbar-nav ms-auto align-items-lg-center">
+
                     <li class="nav-item">
                         <a
                             class="nav-link active"
@@ -189,10 +206,12 @@
                             Log out
                         </a>
                     </li>
+
                 </ul>
             </div>
         </div>
     </nav>
+
 
     <main class="container py-4 py-lg-5">
 
@@ -217,11 +236,14 @@
             {% endif %}
         {% endwith %}
 
-        <!-- Dashboard heading -->
+
+        <!-- Dashboard header -->
         <section class="dashboard-header p-4 p-lg-5 mb-4">
+
             <div
                 class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3"
             >
+
                 <div>
                     <p class="mb-2 opacity-75">
                         Student workspace
@@ -232,8 +254,8 @@
                     </h1>
 
                     <p class="mb-0 opacity-75">
-                        Organise your projects, monitor tasks and keep
-                        track of upcoming work.
+                        Create private projects, manage tasks and keep
+                        track of your deadlines.
                     </p>
                 </div>
 
@@ -248,17 +270,23 @@
                         New project
                     </button>
                 </div>
+
             </div>
         </section>
 
-        <!-- Statistics -->
+
+        <!-- Dashboard statistics -->
         <section class="mb-5">
+
             <div class="row g-3">
+
+                <!-- Owned projects -->
                 <div class="col-6 col-lg-3">
-                    <div class="card stat-card shadow-sm h-100">
+                    <div class="card stat-card shadow-sm">
                         <div class="card-body">
+
                             <div
-                                class="d-flex justify-content-between align-items-start"
+                                class="d-flex justify-content-between align-items-start gap-3"
                             >
                                 <div>
                                     <p class="text-secondary mb-1">
@@ -274,15 +302,19 @@
                                     <i class="bi bi-folder"></i>
                                 </span>
                             </div>
+
                         </div>
                     </div>
                 </div>
 
+
+                <!-- Shared projects -->
                 <div class="col-6 col-lg-3">
-                    <div class="card stat-card shadow-sm h-100">
+                    <div class="card stat-card shadow-sm">
                         <div class="card-body">
+
                             <div
-                                class="d-flex justify-content-between align-items-start"
+                                class="d-flex justify-content-between align-items-start gap-3"
                             >
                                 <div>
                                     <p class="text-secondary mb-1">
@@ -298,15 +330,19 @@
                                     <i class="bi bi-people"></i>
                                 </span>
                             </div>
+
                         </div>
                     </div>
                 </div>
 
+
+                <!-- Incomplete tasks -->
                 <div class="col-6 col-lg-3">
-                    <div class="card stat-card shadow-sm h-100">
+                    <div class="card stat-card shadow-sm">
                         <div class="card-body">
+
                             <div
-                                class="d-flex justify-content-between align-items-start"
+                                class="d-flex justify-content-between align-items-start gap-3"
                             >
                                 <div>
                                     <p class="text-secondary mb-1">
@@ -322,15 +358,19 @@
                                     <i class="bi bi-list-check"></i>
                                 </span>
                             </div>
+
                         </div>
                     </div>
                 </div>
 
+
+                <!-- Overdue tasks -->
                 <div class="col-6 col-lg-3">
-                    <div class="card stat-card shadow-sm h-100">
+                    <div class="card stat-card shadow-sm">
                         <div class="card-body">
+
                             <div
-                                class="d-flex justify-content-between align-items-start"
+                                class="d-flex justify-content-between align-items-start gap-3"
                             >
                                 <div>
                                     <p class="text-secondary mb-1">
@@ -348,16 +388,20 @@
                                     <i class="bi bi-exclamation-triangle"></i>
                                 </span>
                             </div>
+
                         </div>
                     </div>
                 </div>
+
             </div>
         </section>
 
+
         <!-- Owned projects -->
         <section class="mb-5">
+
             <div
-                class="d-flex justify-content-between align-items-center mb-3"
+                class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-3"
             >
                 <div>
                     <h2 class="h3 section-heading mb-1">
@@ -365,13 +409,13 @@
                     </h2>
 
                     <p class="text-secondary mb-0">
-                        Private projects created and owned by you.
+                        Projects created and owned by you.
                     </p>
                 </div>
 
                 <button
                     type="button"
-                    class="btn btn-lu d-none d-sm-inline-block"
+                    class="btn btn-lu"
                     data-bs-toggle="modal"
                     data-bs-target="#createProjectModal"
                 >
@@ -380,12 +424,19 @@
                 </button>
             </div>
 
+
             {% if owned_projects %}
+
                 <div class="row g-3">
+
                     {% for project in owned_projects %}
+
                         <div class="col-12 col-md-6 col-xl-4">
+
                             <article class="card project-card shadow-sm">
+
                                 <div class="card-body p-4">
+
                                     <div
                                         class="d-flex justify-content-between align-items-start gap-2 mb-3"
                                     >
@@ -398,15 +449,20 @@
                                         </span>
                                     </div>
 
+
                                     <p class="project-description text-secondary">
+
                                         {% if project.description %}
                                             {{ project.description }}
                                         {% else %}
                                             No description has been added.
                                         {% endif %}
+
                                     </p>
 
+
                                     <div class="row g-2 small mb-3">
+
                                         <div class="col-6">
                                             <span class="text-secondary">
                                                 Tasks:
@@ -422,7 +478,7 @@
                                                 Complete:
                                             </span>
 
-                                            <strong>
+                                            <strong class="text-success">
                                                 {{ project.complete_count }}
                                             </strong>
                                         </div>
@@ -448,10 +504,15 @@
                                                 {{ project.overdue_count }}
                                             </strong>
                                         </div>
+
                                     </div>
 
-                                    <div class="progress mb-3" style="height: 7px;">
+
+                                    <!-- Completion progress -->
+                                    <div class="progress mb-4">
+
                                         {% if project.task_count > 0 %}
+
                                             {% set completion_percentage =
                                                 (
                                                     project.complete_count
@@ -461,32 +522,209 @@
                                             %}
 
                                             <div
-                                                class="progress-bar"
-                                                style="width: {{ completion_percentage }}%; background-color: #123c34;"
-                                                aria-label="Project completion"
+                                                class="progress-bar progress-bar-lu"
+                                                role="progressbar"
+                                                style="width: {{ completion_percentage }}%;"
+                                                aria-valuenow="{{ completion_percentage }}"
+                                                aria-valuemin="0"
+                                                aria-valuemax="100"
                                             ></div>
+
                                         {% endif %}
+
                                     </div>
 
-                                    <button
-                                        type="button"
-                                        class="btn btn-outline-secondary w-100"
-                                        disabled
-                                    >
-                                        Project tasks — next step
-                                    </button>
+
+                                    <!-- Project actions -->
+                                    <div class="d-flex gap-2">
+
+                                        <a
+                                            href="{{ url_for(
+                                                'student_project_detail',
+                                                project_id=project.project_id
+                                            ) }}"
+                                            class="btn btn-lu flex-grow-1"
+                                        >
+                                            <i class="bi bi-list-task me-1"></i>
+                                            Tasks
+                                        </a>
+
+                                        <button
+                                            type="button"
+                                            class="btn btn-outline-secondary"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#editProjectModal{{ project.project_id }}"
+                                            aria-label="Edit {{ project.project_name }}"
+                                        >
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+
+                                    </div>
+
                                 </div>
                             </article>
                         </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <div class="empty-state">
-                    <div class="empty-state-icon mb-3">
-                        <i class="bi bi-folder-plus"></i>
-                    </div>
 
-                    <h3 class="h5">No projects yet</h3>
+
+                        <!-- Edit project modal -->
+                        <div
+                            class="modal fade"
+                            id="editProjectModal{{ project.project_id }}"
+                            tabindex="-1"
+                            aria-labelledby="editProjectModalLabel{{ project.project_id }}"
+                            aria-hidden="true"
+                        >
+                            <div class="modal-dialog modal-dialog-centered">
+
+                                <div class="modal-content">
+
+                                    <form
+                                        method="post"
+                                        action="{{ url_for(
+                                            'student_edit_project',
+                                            project_id=project.project_id
+                                        ) }}"
+                                    >
+
+                                        <div class="modal-header">
+
+                                            <h2
+                                                class="modal-title fs-5"
+                                                id="editProjectModalLabel{{ project.project_id }}"
+                                            >
+                                                Edit project
+                                            </h2>
+
+                                            <button
+                                                type="button"
+                                                class="btn-close"
+                                                data-bs-dismiss="modal"
+                                                aria-label="Close"
+                                            ></button>
+
+                                        </div>
+
+
+                                        <div class="modal-body">
+
+                                            <div class="mb-3">
+
+                                                <label
+                                                    for="edit_project_name_{{ project.project_id }}"
+                                                    class="form-label"
+                                                >
+                                                    Project name
+                                                </label>
+
+                                                <input
+                                                    type="text"
+                                                    class="form-control"
+                                                    id="edit_project_name_{{ project.project_id }}"
+                                                    name="project_name"
+                                                    maxlength="150"
+                                                    value="{{ project.project_name }}"
+                                                    required
+                                                >
+
+                                                <div class="form-text">
+                                                    Your owned project names must
+                                                    be unique.
+                                                </div>
+
+                                            </div>
+
+
+                                            <div>
+
+                                                <label
+                                                    for="edit_project_description_{{ project.project_id }}"
+                                                    class="form-label"
+                                                >
+                                                    Description
+                                                    <span class="text-secondary">
+                                                        (optional)
+                                                    </span>
+                                                </label>
+
+                                                <textarea
+                                                    class="form-control"
+                                                    id="edit_project_description_{{ project.project_id }}"
+                                                    name="description"
+                                                    rows="4"
+                                                    maxlength="2000"
+                                                >{{ project.description or "" }}</textarea>
+
+                                            </div>
+
+                                        </div>
+
+
+                                        <div class="modal-footer">
+
+                                            <button
+                                                type="button"
+                                                class="btn btn-outline-secondary"
+                                                data-bs-dismiss="modal"
+                                            >
+                                                Cancel
+                                            </button>
+
+                                            <button
+                                                type="submit"
+                                                class="btn btn-lu"
+                                            >
+                                                <i class="bi bi-check-lg me-1"></i>
+                                                Save changes
+                                            </button>
+
+                                        </div>
+
+                                    </form>
+
+
+                                    <!-- Delete project -->
+                                    <div class="border-top p-3">
+
+                                        <form
+                                            method="post"
+                                            action="{{ url_for(
+                                                'student_delete_project',
+                                                project_id=project.project_id
+                                            ) }}"
+                                            onsubmit="return confirm(
+                                                'Delete this project and all of its tasks? This action cannot be undone.'
+                                            );"
+                                        >
+
+                                            <button
+                                                type="submit"
+                                                class="btn btn-outline-danger w-100"
+                                            >
+                                                <i class="bi bi-trash me-1"></i>
+                                                Delete project
+                                            </button>
+
+                                        </form>
+
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                    {% endfor %}
+
+                </div>
+
+            {% else %}
+
+                <div class="empty-state">
+
+                    <i class="bi bi-folder-plus display-4 text-secondary"></i>
+
+                    <h3 class="h5 mt-3">
+                        No projects yet
+                    </h3>
 
                     <p class="text-secondary">
                         Create your first private project to begin
@@ -499,30 +737,47 @@
                         data-bs-toggle="modal"
                         data-bs-target="#createProjectModal"
                     >
+                        <i class="bi bi-plus-lg me-1"></i>
                         Create your first project
                     </button>
+
                 </div>
+
             {% endif %}
+
         </section>
+
 
         <!-- Shared projects -->
         <section>
+
             <div class="mb-3">
+
                 <h2 class="h3 section-heading mb-1">
                     Shared with me
                 </h2>
 
                 <p class="text-secondary mb-0">
                     Projects shared with you by staff or administrators.
+                    You can manage tasks, but you cannot edit the project
+                    name or description.
                 </p>
+
             </div>
 
+
             {% if shared_projects %}
+
                 <div class="row g-3">
+
                     {% for project in shared_projects %}
+
                         <div class="col-12 col-md-6 col-xl-4">
+
                             <article class="card project-card shadow-sm">
+
                                 <div class="card-body p-4">
+
                                     <div
                                         class="d-flex justify-content-between align-items-start gap-2 mb-3"
                                     >
@@ -535,86 +790,148 @@
                                         </span>
                                     </div>
 
-                                    <p class="small text-secondary mb-2">
+
+                                    <p class="project-owner text-secondary mb-2">
+
                                         <i class="bi bi-person me-1"></i>
 
                                         Owner:
+
                                         <strong>
                                             {{ project.owner_first_name }}
                                             {{ project.owner_last_name }}
                                         </strong>
+
                                     </p>
 
+
                                     <p class="project-description text-secondary">
+
                                         {% if project.description %}
                                             {{ project.description }}
                                         {% else %}
                                             No description has been added.
                                         {% endif %}
+
                                     </p>
 
+
                                     <div class="row g-2 small mb-3">
+
                                         <div class="col-6">
-                                            Tasks:
+                                            <span class="text-secondary">
+                                                Tasks:
+                                            </span>
+
                                             <strong>
                                                 {{ project.task_count }}
                                             </strong>
                                         </div>
 
                                         <div class="col-6">
-                                            Complete:
-                                            <strong>
+                                            <span class="text-secondary">
+                                                Complete:
+                                            </span>
+
+                                            <strong class="text-success">
                                                 {{ project.complete_count }}
                                             </strong>
                                         </div>
 
                                         <div class="col-6">
-                                            Remaining:
+                                            <span class="text-secondary">
+                                                Remaining:
+                                            </span>
+
                                             <strong>
                                                 {{ project.incomplete_count }}
                                             </strong>
                                         </div>
 
                                         <div class="col-6">
-                                            Overdue:
+                                            <span class="text-secondary">
+                                                Overdue:
+                                            </span>
+
                                             <strong
                                                 class="{% if project.overdue_count > 0 %}text-danger{% endif %}"
                                             >
                                                 {{ project.overdue_count }}
                                             </strong>
                                         </div>
+
                                     </div>
 
-                                    <button
-                                        type="button"
-                                        class="btn btn-outline-secondary w-100"
-                                        disabled
+
+                                    <!-- Completion progress -->
+                                    <div class="progress mb-4">
+
+                                        {% if project.task_count > 0 %}
+
+                                            {% set completion_percentage =
+                                                (
+                                                    project.complete_count
+                                                    / project.task_count
+                                                    * 100
+                                                )
+                                            %}
+
+                                            <div
+                                                class="progress-bar progress-bar-lu"
+                                                role="progressbar"
+                                                style="width: {{ completion_percentage }}%;"
+                                                aria-valuenow="{{ completion_percentage }}"
+                                                aria-valuemin="0"
+                                                aria-valuemax="100"
+                                            ></div>
+
+                                        {% endif %}
+
+                                    </div>
+
+
+                                    <a
+                                        href="{{ url_for(
+                                            'student_project_detail',
+                                            project_id=project.project_id
+                                        ) }}"
+                                        class="btn btn-outline-primary w-100"
                                     >
-                                        Project tasks — next step
-                                    </button>
+                                        <i class="bi bi-list-task me-1"></i>
+                                        View tasks
+                                    </a>
+
                                 </div>
                             </article>
                         </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <div class="empty-state">
-                    <div class="empty-state-icon mb-3">
-                        <i class="bi bi-people"></i>
-                    </div>
 
-                    <h3 class="h5">
-                        No projects have been shared with you
+                    {% endfor %}
+
+                </div>
+
+            {% else %}
+
+                <div class="empty-state">
+
+                    <i class="bi bi-people display-4 text-secondary"></i>
+
+                    <h3 class="h5 mt-3">
+                        No shared projects
                     </h3>
 
                     <p class="text-secondary mb-0">
-                        Projects shared by staff or administrators will
-                        appear here.
+                        Projects shared with you by staff or administrators
+                        will appear here.
                     </p>
+
                 </div>
+
             {% endif %}
+
         </section>
+
     </main>
+
 
     <!-- Create project modal -->
     <div
@@ -625,24 +942,30 @@
         aria-hidden="true"
     >
         <div class="modal-dialog modal-dialog-centered">
+
             <div class="modal-content">
+
                 <form
                     method="post"
                     action="{{ url_for('student_create_project') }}"
                 >
+
                     <div class="modal-header">
+
                         <div>
+
                             <h2
                                 class="modal-title fs-5"
                                 id="createProjectModalLabel"
                             >
-                                Create a new project
+                                Create a project
                             </h2>
 
                             <p class="text-secondary small mb-0">
                                 Student projects are private and cannot
                                 be shared.
                             </p>
+
                         </div>
 
                         <button
@@ -651,10 +974,14 @@
                             data-bs-dismiss="modal"
                             aria-label="Close"
                         ></button>
+
                     </div>
 
+
                     <div class="modal-body">
+
                         <div class="mb-3">
+
                             <label
                                 for="project_name"
                                 class="form-label"
@@ -673,11 +1000,14 @@
                             >
 
                             <div class="form-text">
-                                Your project names must be unique.
+                                Your owned project names must be unique.
                             </div>
+
                         </div>
 
+
                         <div>
+
                             <label
                                 for="description"
                                 class="form-label"
@@ -695,10 +1025,14 @@
                                 rows="4"
                                 maxlength="2000"
                             ></textarea>
+
                         </div>
+
                     </div>
 
+
                     <div class="modal-footer">
+
                         <button
                             type="button"
                             class="btn btn-outline-secondary"
@@ -714,14 +1048,20 @@
                             <i class="bi bi-plus-lg me-1"></i>
                             Create project
                         </button>
+
                     </div>
+
                 </form>
+
             </div>
         </div>
     </div>
 
+
+    <!-- Bootstrap JavaScript -->
     <script
         src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
     ></script>
+
 </body>
 </html>

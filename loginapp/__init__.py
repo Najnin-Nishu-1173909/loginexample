@@ -21,5 +21,6 @@ db.init_db(
 from . import user
 from . import profile
 from . import student
+from . import student_tasks
 from . import staff
 from . import admin
