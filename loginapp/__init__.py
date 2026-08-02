@@ -23,6 +23,6 @@ db.init_db(
 
 # Import modules that contain Flask routes.
 from . import user
-from . import customer
+from . import student
 from . import staff
 from . import admin
