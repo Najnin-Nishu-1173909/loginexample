@@ -1,30 +1,28 @@
-# This script runs automatically when our `loginapp` module is first loaded,
-# and handles all the setup for our Flask app.
+"""Application setup for LU-TODO."""
+
 from flask import Flask
 
 app = Flask(__name__)
 
-# Set the "secret key" that our app will use to sign session cookies. This can
-# be anything.
-# 
-# Anyone with access to this key can pretend to be signed in as any user. In a
-# real-world project, you wouldn't store this key in your source code. To learn
-# about how to manage "secrets" like this in production code, check out
-# https://blog.gitguardian.com/how-to-handle-secrets-in-python/
-#
-# For the purpose of your assignments, you DON'T need to use any of those more
-# advanced and secure methods: it's fine to store your secret key in your
-# source code like we do here.
-app.secret_key = 'Example Secret Key (CHANGE THIS TO YOUR OWN SECRET KEY!)'
+# Used to securely sign Flask session cookies.
+# Change this to your own unique value.
+app.secret_key = "LU-TODO-1173909-Change-This-Secret-Key"
 
-# Set up database connection.
-from loginapp import connect
-from loginapp import db
-db.init_db(app, connect.dbuser, connect.dbpass, connect.dbhost, connect.dbname,
-           connect.dbport)
+# Set up the PostgreSQL database connection.
+from . import connect
+from . import db
 
-# Include all modules that define our Flask route-handling functions.
-from loginapp import user
-from loginapp import customer
-from loginapp import staff
-from loginapp import admin
+db.init_db(
+    app,
+    connect.dbuser,
+    connect.dbpass,
+    connect.dbhost,
+    connect.dbname,
+    connect.dbport,
+)
+
+# Import modules that contain Flask routes.
+from . import user
+from . import customer
+from . import staff
+from . import admin
