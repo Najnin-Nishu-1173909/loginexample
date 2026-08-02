@@ -1,12 +1,4 @@
-"""User authentication and account routes for LU-TODO.
-
-This module provides:
-- Email-based login
-- Student and staff registration
-- Logout
-- Profile viewing
-- Role-specific homepage redirects
-"""
+"""User authentication and account routes for LU-TODO."""
 
 import os
 import re
@@ -27,11 +19,8 @@ from loginapp import app
 from loginapp import db
 
 
-# Flask-Bcrypt is used to hash and verify passwords.
 flask_bcrypt = Bcrypt(app)
 
-
-# Profile-picture settings.
 ALLOWED_IMAGE_EXTENSIONS = {
     "png",
     "jpg",
@@ -46,17 +35,14 @@ PROFILE_UPLOAD_FOLDER = os.path.join(
     "profile_pictures",
 )
 
-# Create the upload directory if it does not already exist.
 os.makedirs(PROFILE_UPLOAD_FOLDER, exist_ok=True)
 
 app.config["PROFILE_UPLOAD_FOLDER"] = PROFILE_UPLOAD_FOLDER
-
-# Maximum uploaded file size: 5 MB.
 app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024
 
 
 def login_required(route_function):
-    """Require a user to be logged in before accessing a route."""
+    """Require the user to be logged in."""
 
     @wraps(route_function)
     def decorated_function(*args, **kwargs):
@@ -70,7 +56,7 @@ def login_required(route_function):
 
 
 def allowed_profile_picture(filename):
-    """Check whether a profile-picture filename has an allowed extension."""
+    """Check whether a profile picture has an allowed extension."""
 
     return (
         "." in filename
@@ -80,16 +66,7 @@ def allowed_profile_picture(filename):
 
 
 def determine_user_role(email):
-    """Determine a new user's role from their Lincoln email domain.
-
-    Students:
-        @lincolnuni.ac.nz
-
-    Staff:
-        @lincoln.ac.nz
-
-    Admin accounts cannot be created through public registration.
-    """
+    """Determine role from Lincoln email domain."""
 
     email = email.strip().lower()
 
@@ -103,15 +80,7 @@ def determine_user_role(email):
 
 
 def validate_password(password):
-    """Validate a password against the LU-TODO password requirements.
-
-    Passwords must contain:
-    - At least 8 characters
-    - At least one uppercase letter
-    - At least one lowercase letter
-    - At least one number
-    - At least one special character
-    """
+    """Validate password strength."""
 
     if len(password) < 8:
         return "Password must contain at least 8 characters."
@@ -132,7 +101,7 @@ def validate_password(password):
 
 
 def user_home_url():
-    """Return the homepage URL for the logged-in user's role."""
+    """Return the correct dashboard URL for the current user."""
 
     if "user_id" not in session:
         return url_for("login")
@@ -148,22 +117,20 @@ def user_home_url():
     if role == "admin":
         return url_for("admin_home")
 
-    # Invalid role: clear the session through logout.
     return url_for("logout")
 
 
 @app.route("/")
 def root():
-    """Redirect guests to login and users to their homepage."""
+    """Redirect users to login or their dashboard."""
 
     return redirect(user_home_url())
 
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    """Authenticate a user with their Lincoln email and password."""
+    """Log in using Lincoln email and password."""
 
-    # Already logged-in users do not need to see the login form.
     if "user_id" in session:
         return redirect(user_home_url())
 
@@ -171,7 +138,6 @@ def login():
         email = request.form.get("email", "").strip().lower()
         password = request.form.get("password", "")
 
-        # Check that both fields were submitted.
         if not email or not password:
             flash(
                 "Please enter your email address and password.",
@@ -183,7 +149,6 @@ def login():
                 email=email,
             )
 
-        # Find the account using the supplied email.
         with db.get_cursor() as cursor:
             cursor.execute(
                 """
@@ -203,9 +168,6 @@ def login():
 
             account = cursor.fetchone()
 
-        # Temporary server-log message for testing.
-        print("LOGIN DEBUG - ACCOUNT FOUND:", account is not None)
-
         if account is None:
             return render_template(
                 "login.html",
@@ -213,7 +175,6 @@ def login():
                 email_invalid=True,
             )
 
-        # Inactive users must not be allowed to log in.
         if account["status"] != "active":
             flash(
                 "Your account is inactive. "
@@ -226,16 +187,11 @@ def login():
                 email=email,
             )
 
-        # Compare the submitted password with the stored bcrypt hash.
-        password_is_correct = flask_bcrypt.check_password_hash(
-            account["password_hash"],
-            password,
-        )
-
-        # Temporary server-log message for testing.
-        print(
-            "LOGIN DEBUG - PASSWORD CORRECT:",
-            password_is_correct,
+        password_is_correct = (
+            flask_bcrypt.check_password_hash(
+                account["password_hash"],
+                password,
+            )
         )
 
         if not password_is_correct:
@@ -245,7 +201,6 @@ def login():
                 password_invalid=True,
             )
 
-        # Clear any previous session before storing the new login details.
         session.clear()
 
         session["loggedin"] = True
@@ -260,17 +215,14 @@ def login():
             "success",
         )
 
-        # Temporary test redirect.
-        # Once login is confirmed working, replace this with:
-        # return redirect(user_home_url())
-        return redirect(url_for("profile"))
+        return redirect(user_home_url())
 
     return render_template("login.html")
 
 
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
-    """Register a new LU-TODO student or staff account."""
+    """Register a new student or staff account."""
 
     if "user_id" in session:
         return redirect(user_home_url())
@@ -300,7 +252,6 @@ def signup():
 
         errors = {}
 
-        # Validate first name.
         if not first_name:
             errors["first_name_error"] = (
                 "First name is required."
@@ -310,7 +261,6 @@ def signup():
                 "First name cannot exceed 100 characters."
             )
 
-        # Validate last name.
         if not last_name:
             errors["last_name_error"] = (
                 "Last name is required."
@@ -320,7 +270,6 @@ def signup():
                 "Last name cannot exceed 100 characters."
             )
 
-        # Validate position.
         if not position:
             errors["position_error"] = (
                 "Position is required."
@@ -330,7 +279,6 @@ def signup():
                 "Position cannot exceed 150 characters."
             )
 
-        # Validate email and determine the new user's role.
         user_role = None
 
         if not email:
@@ -357,13 +305,11 @@ def signup():
                     "or an @lincoln.ac.nz staff email."
                 )
 
-        # Validate password.
         password_error = validate_password(password)
 
         if password_error:
             errors["password_error"] = password_error
 
-        # Validate password confirmation.
         if not confirm_password:
             errors["confirm_password_error"] = (
                 "Please enter the password again."
@@ -373,7 +319,6 @@ def signup():
                 "The two passwords do not match."
             )
 
-        # Check that the email is unique.
         if email and "email_error" not in errors:
             with db.get_cursor() as cursor:
                 cursor.execute(
@@ -393,7 +338,6 @@ def signup():
                     "this email address."
                 )
 
-        # Validate optional profile picture.
         if (
             profile_picture_file
             and profile_picture_file.filename
@@ -406,7 +350,6 @@ def signup():
                     "JPEG, GIF, or WEBP."
                 )
 
-        # Return the user to the form when validation fails.
         if errors:
             return render_template(
                 "signup.html",
@@ -419,7 +362,6 @@ def signup():
 
         profile_picture_filename = None
 
-        # Save optional profile picture.
         if (
             profile_picture_file
             and profile_picture_file.filename
@@ -455,7 +397,6 @@ def signup():
                 profile_picture_path
             )
 
-        # Hash the password before inserting the account.
         password_hash = (
             flask_bcrypt.generate_password_hash(
                 password
@@ -511,7 +452,7 @@ def signup():
 @app.route("/profile")
 @login_required
 def profile():
-    """Display the currently logged-in user's profile."""
+    """Display the current user's profile."""
 
     with db.get_cursor() as cursor:
         cursor.execute(
@@ -552,7 +493,7 @@ def profile():
 
 @app.route("/logout")
 def logout():
-    """Clear the session and return to the login page."""
+    """Log out and return to the login page."""
 
     session.clear()
 
