@@ -1,54 +1,553 @@
 <!doctype html>
 <html lang="en">
-  <head>
+
+<head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Sign Up - Login Example</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-  </head>
-  <body>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-    
-    <div class="container">
-      <div class="row vh-100 align-items-center justify-content-center">
-        <div class="col-md-auto col-lg-5 col-xl-4">
-            <div class="bg-primary text-white border border-bottom-0 rounded-top text-center">
-                <h1 class="p-3 m-0">Sign up</h1>
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
+
+    <title>Register | LU-TODO</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    >
+
+    <style>
+        :root {
+            --lu-green: #123c34;
+            --lu-green-dark: #0d2e28;
+            --lu-green-light: #dcebe6;
+            --page-background: #f4f7f6;
+        }
+
+        body {
+            min-height: 100vh;
+            background-color: var(--page-background);
+        }
+
+        .register-wrapper {
+            width: 100%;
+            max-width: 820px;
+        }
+
+        .register-header {
+            color: white;
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--lu-green),
+                    #1d5c50
+                );
+        }
+
+        .btn-lu {
+            color: white;
+            background-color: var(--lu-green);
+            border-color: var(--lu-green);
+        }
+
+        .btn-lu:hover,
+        .btn-lu:focus {
+            color: white;
+            background-color: var(--lu-green-dark);
+            border-color: var(--lu-green-dark);
+        }
+
+        .role-information {
+            border-left: 4px solid var(--lu-green);
+            background-color: var(--lu-green-light);
+        }
+
+        .password-rules {
+            font-size: 0.9rem;
+        }
+
+        .profile-preview {
+            width: 90px;
+            height: 90px;
+            display: none;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 3px solid var(--lu-green);
+        }
+    </style>
+</head>
+
+<body>
+
+    <main class="container py-4 py-lg-5">
+
+        <div class="register-wrapper mx-auto">
+
+            <div class="register-header rounded-top p-4 p-md-5 text-center">
+
+                <h1 class="display-5 fw-bold mb-2">
+                    LU-TODO
+                </h1>
+
+                <p class="lead mb-0">
+                    Create your student or staff account
+                </p>
+
             </div>
-            <div class="bg-white border container">
-                <form class="p-3" action="{{ url_for('signup') }}" method="post">
-                  <div class="mb-3">
-                    <label for="username" class="form-label">Username</label>
-                    <input type="text" class="form-control{% if username_error %} is-invalid{% endif %}" id="username" name="username" placeholder="Choose a username..." maxlength=20 value="{{ username }}" required>
-                    <div class="invalid-feedback">{{ username_error }}</div>
-                  </div>
-                  <div class="mb-3">
-                    <label for="email" class="form-label">Email Address</label>
-                    <input type="text" class="form-control{% if email_error %} is-invalid{% endif %}" id="email" name="email" placeholder="Enter your email address..." maxlength=254 value="{{ email }}" required>
-                    <div class="invalid-feedback">{{ email_error }}</div>
-                  </div>
-                  <div class="mb-3">
-                    <label for="password" class="form-label">Password</label>
-                    <input type="password" class="form-control{% if password_error %} is-invalid{% endif %}" id="password" name="password" placeholder="Choose a password..." aria-describedby="passwordHelp" required>
-                    <div id="passwordHelp" class="form-text">Your password must be at least 8 characters long.</div>
-                    <div class="invalid-feedback">{{ password_error }}</div>
-                  </div>
-                  <div class="text-center">
-                    <button type="submit" class="btn btn-primary">Sign Up</button>
-                  </div>
-                </form>
+
+
+            <div class="card border-0 rounded-top-0 shadow-sm">
+
+                <div class="card-body p-4 p-md-5">
+
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+
+                            {% for category, message in messages %}
+
+                                <div
+                                    class="alert alert-{{ category }} alert-dismissible fade show"
+                                    role="alert"
+                                >
+                                    {{ message }}
+
+                                    <button
+                                        type="button"
+                                        class="btn-close"
+                                        data-bs-dismiss="alert"
+                                        aria-label="Close"
+                                    ></button>
+                                </div>
+
+                            {% endfor %}
+
+                        {% endif %}
+                    {% endwith %}
+
+
+                    <div class="role-information rounded p-3 mb-4">
+
+                        <div class="d-flex gap-3">
+
+                            <i class="bi bi-info-circle-fill fs-4"></i>
+
+                            <div>
+
+                                <h2 class="h6 mb-1">
+                                    Your role is selected automatically
+                                </h2>
+
+                                <p class="mb-1">
+                                    <strong>@lincolnuni.ac.nz</strong>
+                                    accounts are registered as students.
+                                </p>
+
+                                <p class="mb-0">
+                                    <strong>@lincoln.ac.nz</strong>
+                                    accounts are registered as staff.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <form
+                        action="{{ url_for('signup') }}"
+                        method="post"
+                        enctype="multipart/form-data"
+                        novalidate
+                    >
+
+                        <div class="row g-3">
+
+                            <!-- First name -->
+                            <div class="col-md-6">
+
+                                <label
+                                    for="first_name"
+                                    class="form-label"
+                                >
+                                    First name
+                                    <span class="text-danger">*</span>
+                                </label>
+
+                                <input
+                                    type="text"
+                                    class="form-control{% if first_name_error %} is-invalid{% endif %}"
+                                    id="first_name"
+                                    name="first_name"
+                                    maxlength="100"
+                                    value="{{ first_name | default('') }}"
+                                    autocomplete="given-name"
+                                    required
+                                >
+
+                                {% if first_name_error %}
+                                    <div class="invalid-feedback">
+                                        {{ first_name_error }}
+                                    </div>
+                                {% endif %}
+
+                            </div>
+
+
+                            <!-- Last name -->
+                            <div class="col-md-6">
+
+                                <label
+                                    for="last_name"
+                                    class="form-label"
+                                >
+                                    Last name
+                                    <span class="text-danger">*</span>
+                                </label>
+
+                                <input
+                                    type="text"
+                                    class="form-control{% if last_name_error %} is-invalid{% endif %}"
+                                    id="last_name"
+                                    name="last_name"
+                                    maxlength="100"
+                                    value="{{ last_name | default('') }}"
+                                    autocomplete="family-name"
+                                    required
+                                >
+
+                                {% if last_name_error %}
+                                    <div class="invalid-feedback">
+                                        {{ last_name_error }}
+                                    </div>
+                                {% endif %}
+
+                            </div>
+
+
+                            <!-- Email -->
+                            <div class="col-12">
+
+                                <label
+                                    for="email"
+                                    class="form-label"
+                                >
+                                    Lincoln email address
+                                    <span class="text-danger">*</span>
+                                </label>
+
+                                <input
+                                    type="email"
+                                    class="form-control{% if email_error %} is-invalid{% endif %}"
+                                    id="email"
+                                    name="email"
+                                    maxlength="254"
+                                    value="{{ email | default('') }}"
+                                    placeholder="name@lincolnuni.ac.nz"
+                                    autocomplete="email"
+                                    required
+                                >
+
+                                {% if email_error %}
+
+                                    <div class="invalid-feedback">
+                                        {{ email_error }}
+                                    </div>
+
+                                {% else %}
+
+                                    <div class="form-text">
+                                        Only @lincolnuni.ac.nz and
+                                        @lincoln.ac.nz email addresses are accepted.
+                                    </div>
+
+                                {% endif %}
+
+                            </div>
+
+
+                            <!-- Position -->
+                            <div class="col-12">
+
+                                <label
+                                    for="position"
+                                    class="form-label"
+                                >
+                                    Position
+                                    <span class="text-danger">*</span>
+                                </label>
+
+                                <input
+                                    type="text"
+                                    class="form-control{% if position_error %} is-invalid{% endif %}"
+                                    id="position"
+                                    name="position"
+                                    maxlength="150"
+                                    value="{{ position | default('') }}"
+                                    placeholder="For example: MAC Student or Lecturer in Applied Computing"
+                                    required
+                                >
+
+                                {% if position_error %}
+                                    <div class="invalid-feedback">
+                                        {{ position_error }}
+                                    </div>
+                                {% endif %}
+
+                            </div>
+
+
+                            <!-- Password -->
+                            <div class="col-md-6">
+
+                                <label
+                                    for="password"
+                                    class="form-label"
+                                >
+                                    Password
+                                    <span class="text-danger">*</span>
+                                </label>
+
+                                <div class="input-group">
+
+                                    <input
+                                        type="password"
+                                        class="form-control{% if password_error %} is-invalid{% endif %}"
+                                        id="password"
+                                        name="password"
+                                        autocomplete="new-password"
+                                        required
+                                    >
+
+                                    <button
+                                        type="button"
+                                        class="btn btn-outline-secondary"
+                                        id="togglePassword"
+                                        aria-label="Show or hide password"
+                                    >
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+
+                                    {% if password_error %}
+                                        <div class="invalid-feedback">
+                                            {{ password_error }}
+                                        </div>
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- Confirm password -->
+                            <div class="col-md-6">
+
+                                <label
+                                    for="confirm_password"
+                                    class="form-label"
+                                >
+                                    Confirm password
+                                    <span class="text-danger">*</span>
+                                </label>
+
+                                <input
+                                    type="password"
+                                    class="form-control{% if confirm_password_error %} is-invalid{% endif %}"
+                                    id="confirm_password"
+                                    name="confirm_password"
+                                    autocomplete="new-password"
+                                    required
+                                >
+
+                                {% if confirm_password_error %}
+                                    <div class="invalid-feedback">
+                                        {{ confirm_password_error }}
+                                    </div>
+                                {% endif %}
+
+                            </div>
+
+
+                            <div class="col-12">
+
+                                <div class="password-rules text-secondary">
+
+                                    Password must contain at least:
+
+                                    <ul class="mb-0 mt-1">
+                                        <li>8 characters</li>
+                                        <li>One uppercase letter</li>
+                                        <li>One lowercase letter</li>
+                                        <li>One number</li>
+                                        <li>One special character</li>
+                                    </ul>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- Optional profile picture -->
+                            <div class="col-12">
+
+                                <label
+                                    for="profile_picture"
+                                    class="form-label"
+                                >
+                                    Profile picture
+                                    <span class="text-secondary">
+                                        (optional)
+                                    </span>
+                                </label>
+
+                                <div
+                                    class="d-flex flex-column flex-sm-row align-items-sm-center gap-3"
+                                >
+
+                                    <img
+                                        id="profilePreview"
+                                        class="profile-preview"
+                                        alt="Selected profile picture preview"
+                                    >
+
+                                    <div class="flex-grow-1">
+
+                                        <input
+                                            type="file"
+                                            class="form-control{% if profile_picture_error %} is-invalid{% endif %}"
+                                            id="profile_picture"
+                                            name="profile_picture"
+                                            accept=".png,.jpg,.jpeg,.gif,.webp,image/*"
+                                        >
+
+                                        {% if profile_picture_error %}
+
+                                            <div class="invalid-feedback">
+                                                {{ profile_picture_error }}
+                                            </div>
+
+                                        {% else %}
+
+                                            <div class="form-text">
+                                                Accepted formats: PNG, JPG, JPEG,
+                                                GIF and WEBP. Maximum size: 5 MB.
+                                            </div>
+
+                                        {% endif %}
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="d-grid mt-4">
+
+                            <button
+                                type="submit"
+                                class="btn btn-lu btn-lg"
+                            >
+                                <i class="bi bi-person-plus me-1"></i>
+                                Create account
+                            </button>
+
+                        </div>
+
+                    </form>
+
+
+                    <div class="text-center border-top mt-4 pt-4">
+
+                        <p class="mb-0">
+                            Already have an account?
+
+                            <a
+                                href="{{ url_for('login') }}"
+                                class="fw-semibold"
+                            >
+                                Log in
+                            </a>
+                        </p>
+
+                    </div>
+
+                </div>
+
             </div>
-            {% if signup_successful %}
-            <div class="bg-success text-white border border-top-0 rounded-bottom text-center">
-                <div class="p-2">You have successfully signed up! <a class="link-light" href="{{ url_for('login') }}">Log in</a></div>
-            </div>
-            {% else %}
-            <div class="bg-white border border-top-0 rounded-bottom text-center">
-                <div class="p-2">Already have an account? <a href="{{ url_for('login') }}">Log in</a></div>
-            </div>
-            {% endif %}
+
+
+            <footer class="text-center text-secondary small mt-4">
+
+                <p class="mb-2">
+                    Developed by Najnin Sultana Nishu —
+                    Student ID 1173909
+                </p>
+
+                <p class="mb-0">
+                    This is a student project developed for COMP639 at
+                    Lincoln University – Te Whare Wānaka o Aoraki.
+                    This app is not an official Lincoln University tool,
+                    and not for real-world use.
+                </p>
+
+            </footer>
+
         </div>
-      </div>
-    </div>
-  </body>
+
+    </main>
+
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    ></script>
+
+    <script>
+        const passwordInput = document.getElementById("password");
+        const togglePasswordButton =
+            document.getElementById("togglePassword");
+
+        togglePasswordButton.addEventListener("click", function () {
+            const passwordIsHidden =
+                passwordInput.type === "password";
+
+            passwordInput.type =
+                passwordIsHidden ? "text" : "password";
+
+            this.innerHTML = passwordIsHidden
+                ? '<i class="bi bi-eye-slash"></i>'
+                : '<i class="bi bi-eye"></i>';
+        });
+
+
+        const profileInput =
+            document.getElementById("profile_picture");
+
+        const profilePreview =
+            document.getElementById("profilePreview");
+
+        profileInput.addEventListener("change", function () {
+            const selectedFile = this.files[0];
+
+            if (!selectedFile) {
+                profilePreview.src = "";
+                profilePreview.style.display = "none";
+                return;
+            }
+
+            profilePreview.src =
+                URL.createObjectURL(selectedFile);
+
+            profilePreview.style.display = "block";
+        });
+    </script>
+
+</body>
 </html>
