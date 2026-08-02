@@ -205,7 +205,6 @@
                 <ul class="navbar-nav ms-auto align-items-lg-center">
 
                     <li class="nav-item">
-
                         <a
                             class="nav-link active"
                             href="{{ url_for('admin_home') }}"
@@ -213,35 +212,29 @@
                             <i class="bi bi-grid me-1"></i>
                             Dashboard
                         </a>
-
                     </li>
 
                     <li class="nav-item">
-
-                        <span
-                            class="nav-link disabled"
-                            title="System shared-project administration will be added later"
+                        <a
+                            class="nav-link"
+                            href="{{ url_for('admin_shared_projects') }}"
                         >
                             <i class="bi bi-kanban me-1"></i>
                             Shared projects
-                        </span>
-
+                        </a>
                     </li>
 
                     <li class="nav-item">
-
                         <span
                             class="nav-link disabled"
-                            title="User administration will be added later"
+                            title="User administration will be added next"
                         >
                             <i class="bi bi-people me-1"></i>
                             Users
                         </span>
-
                     </li>
 
                     <li class="nav-item">
-
                         <a
                             class="nav-link"
                             href="{{ url_for('profile') }}"
@@ -249,11 +242,9 @@
                             <i class="bi bi-person me-1"></i>
                             Profile
                         </a>
-
                     </li>
 
                     <li class="nav-item ms-lg-2 mt-2 mt-lg-0">
-
                         <a
                             class="btn btn-light"
                             href="{{ url_for('logout') }}"
@@ -261,7 +252,6 @@
                             <i class="bi bi-box-arrow-right me-1"></i>
                             Log out
                         </a>
-
                     </li>
 
                 </ul>
@@ -358,7 +348,6 @@
                             >
 
                                 <div>
-
                                     <p class="text-secondary small mb-1">
                                         My projects
                                     </p>
@@ -366,7 +355,6 @@
                                     <p class="h2 fw-bold mb-0">
                                         {{ statistics.owned_project_count }}
                                     </p>
-
                                 </div>
 
                                 <span class="stat-icon">
@@ -394,7 +382,6 @@
                             >
 
                                 <div>
-
                                     <p class="text-secondary small mb-1">
                                         Shared with me
                                     </p>
@@ -402,7 +389,6 @@
                                     <p class="h2 fw-bold mb-0">
                                         {{ statistics.shared_with_me_count }}
                                     </p>
-
                                 </div>
 
                                 <span class="stat-icon">
@@ -430,7 +416,6 @@
                             >
 
                                 <div>
-
                                     <p class="text-secondary small mb-1">
                                         System shared
                                     </p>
@@ -438,7 +423,6 @@
                                     <p class="h2 fw-bold mb-0">
                                         {{ statistics.system_shared_project_count }}
                                     </p>
-
                                 </div>
 
                                 <span class="stat-icon stat-icon-admin">
@@ -466,7 +450,6 @@
                             >
 
                                 <div>
-
                                     <p class="text-secondary small mb-1">
                                         Registered users
                                     </p>
@@ -474,7 +457,6 @@
                                     <p class="h2 fw-bold mb-0">
                                         {{ statistics.user_count }}
                                     </p>
-
                                 </div>
 
                                 <span class="stat-icon stat-icon-admin">
@@ -502,7 +484,6 @@
                             >
 
                                 <div>
-
                                     <p class="text-secondary small mb-1">
                                         Incomplete
                                     </p>
@@ -510,7 +491,6 @@
                                     <p class="h2 fw-bold mb-0">
                                         {{ statistics.incomplete_task_count }}
                                     </p>
-
                                 </div>
 
                                 <span class="stat-icon">
@@ -538,7 +518,6 @@
                             >
 
                                 <div>
-
                                     <p class="text-secondary small mb-1">
                                         Overdue
                                     </p>
@@ -548,7 +527,6 @@
                                     >
                                         {{ statistics.overdue_task_count }}
                                     </p>
-
                                 </div>
 
                                 <span class="stat-icon">
@@ -589,9 +567,7 @@
                 <!-- Shared-project administration -->
                 <div class="col-md-6">
 
-                    <div
-                        class="card admin-action-card shadow-sm h-100 coming-soon"
-                    >
+                    <div class="card admin-action-card shadow-sm h-100">
 
                         <div class="card-body p-4">
 
@@ -613,13 +589,13 @@
                                         and delete shared projects.
                                     </p>
 
-                                    <button
-                                        type="button"
-                                        class="btn btn-outline-secondary"
-                                        disabled
+                                    <a
+                                        href="{{ url_for('admin_shared_projects') }}"
+                                        class="btn btn-outline-primary"
                                     >
-                                        Coming later
-                                    </button>
+                                        <i class="bi bi-kanban me-1"></i>
+                                        Open shared projects
+                                    </a>
 
                                 </div>
 
@@ -664,7 +640,7 @@
                                         class="btn btn-outline-secondary"
                                         disabled
                                     >
-                                        Coming later
+                                        Coming next
                                     </button>
 
                                 </div>
@@ -759,7 +735,6 @@
                                     <div class="row g-2 small mb-3">
 
                                         <div class="col-6">
-
                                             <span class="text-secondary">
                                                 Tasks:
                                             </span>
@@ -767,11 +742,9 @@
                                             <strong>
                                                 {{ project.task_count }}
                                             </strong>
-
                                         </div>
 
                                         <div class="col-6">
-
                                             <span class="text-secondary">
                                                 Complete:
                                             </span>
@@ -779,11 +752,9 @@
                                             <strong class="text-success">
                                                 {{ project.complete_count }}
                                             </strong>
-
                                         </div>
 
                                         <div class="col-6">
-
                                             <span class="text-secondary">
                                                 Remaining:
                                             </span>
@@ -791,11 +762,9 @@
                                             <strong>
                                                 {{ project.incomplete_count }}
                                             </strong>
-
                                         </div>
 
                                         <div class="col-6">
-
                                             <span class="text-secondary">
                                                 Overdue:
                                             </span>
@@ -805,11 +774,9 @@
                                             >
                                                 {{ project.overdue_count }}
                                             </strong>
-
                                         </div>
 
                                         <div class="col-12 mt-2">
-
                                             <span class="text-secondary">
                                                 Members:
                                             </span>
@@ -817,7 +784,6 @@
                                             <strong>
                                                 {{ project.member_count }}
                                             </strong>
-
                                         </div>
 
                                     </div>
@@ -877,10 +843,11 @@
                                     </div>
 
 
-                                    <!-- Permanent direct path.
-                                         This will work after admin sharing routes are added. -->
                                     <a
-                                        href="/admin/projects/{{ project.project_id }}/members"
+                                        href="{{ url_for(
+                                            'admin_project_members',
+                                            project_id=project.project_id
+                                        ) }}"
                                         class="btn btn-outline-primary w-100"
                                     >
                                         <i class="bi bi-people me-1"></i>
@@ -1168,55 +1135,40 @@
                                     <div class="row g-2 small mb-3">
 
                                         <div class="col-6">
-
                                             Tasks:
-
                                             <strong>
                                                 {{ project.task_count }}
                                             </strong>
-
                                         </div>
 
                                         <div class="col-6">
-
                                             Complete:
-
                                             <strong class="text-success">
                                                 {{ project.complete_count }}
                                             </strong>
-
                                         </div>
 
                                         <div class="col-6">
-
                                             Remaining:
-
                                             <strong>
                                                 {{ project.incomplete_count }}
                                             </strong>
-
                                         </div>
 
                                         <div class="col-6">
-
                                             Overdue:
-
                                             <strong
                                                 class="{% if project.overdue_count > 0 %}text-danger{% endif %}"
                                             >
                                                 {{ project.overdue_count }}
                                             </strong>
-
                                         </div>
 
                                         <div class="col-12 mt-2">
-
                                             Members:
-
                                             <strong>
                                                 {{ project.member_count }}
                                             </strong>
-
                                         </div>
 
                                     </div>
