@@ -28,3 +28,4 @@ from . import staff_sharing
 from . import admin
 from . import admin_tasks
 from . import admin_sharing
+from . import admin_projects
