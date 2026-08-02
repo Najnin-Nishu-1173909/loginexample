@@ -139,10 +139,13 @@ def user_home_url():
 
 
 @app.route("/")
-def root():
-    """Redirect visitors to login or their role-specific dashboard."""
+def home():
+    """Public home page."""
 
-    return redirect(user_home_url())
+    if "user_id" in session:
+        return redirect(user_home_url())
+
+    return render_template("home.html")
 
 
 @app.route("/login", methods=["GET", "POST"])
