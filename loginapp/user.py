@@ -1,4 +1,4 @@
-"""User authentication and account routes for LU-TODO."""
+"""Authentication and registration routes for LU-TODO."""
 
 import os
 import re
@@ -21,6 +21,8 @@ from loginapp import db
 
 flask_bcrypt = Bcrypt(app)
 
+
+# Profile-picture settings used during registration.
 ALLOWED_IMAGE_EXTENSIONS = {
     "png",
     "jpg",
@@ -38,16 +40,22 @@ PROFILE_UPLOAD_FOLDER = os.path.join(
 os.makedirs(PROFILE_UPLOAD_FOLDER, exist_ok=True)
 
 app.config["PROFILE_UPLOAD_FOLDER"] = PROFILE_UPLOAD_FOLDER
+
+# Maximum uploaded file size: 5 MB.
 app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024
 
 
 def login_required(route_function):
-    """Require the user to be logged in."""
+    """Require a user to be logged in before accessing a route."""
 
     @wraps(route_function)
     def decorated_function(*args, **kwargs):
         if "user_id" not in session:
-            flash("Please log in to continue.", "warning")
+            flash(
+                "Please log in to continue.",
+                "warning",
+            )
+
             return redirect(url_for("login"))
 
         return route_function(*args, **kwargs)
@@ -56,7 +64,7 @@ def login_required(route_function):
 
 
 def allowed_profile_picture(filename):
-    """Check whether a profile picture has an allowed extension."""
+    """Return True if the uploaded image has an allowed extension."""
 
     return (
         "." in filename
@@ -66,7 +74,16 @@ def allowed_profile_picture(filename):
 
 
 def determine_user_role(email):
-    """Determine role from Lincoln email domain."""
+    """Determine a user's role from their Lincoln email address.
+
+    Student:
+        @lincolnuni.ac.nz
+
+    Staff:
+        @lincoln.ac.nz
+
+    Admin accounts cannot be created using public registration.
+    """
 
     email = email.strip().lower()
 
@@ -80,7 +97,7 @@ def determine_user_role(email):
 
 
 def validate_password(password):
-    """Validate password strength."""
+    """Validate a password against LU-TODO requirements."""
 
     if len(password) < 8:
         return "Password must contain at least 8 characters."
@@ -101,42 +118,50 @@ def validate_password(password):
 
 
 def user_home_url():
-    """Return the correct dashboard URL for the current user."""
+    """Return the appropriate homepage for the logged-in user."""
 
     if "user_id" not in session:
         return url_for("login")
 
-    role = session.get("user_role")
+    user_role = session.get("user_role")
 
-    if role == "student":
+    if user_role == "student":
         return url_for("student_home")
 
-    if role == "staff":
+    if user_role == "staff":
         return url_for("staff_home")
 
-    if role == "admin":
+    if user_role == "admin":
         return url_for("admin_home")
 
+    # Invalid session role.
     return url_for("logout")
 
 
 @app.route("/")
 def root():
-    """Redirect users to login or their dashboard."""
+    """Redirect visitors to login or their role-specific dashboard."""
 
     return redirect(user_home_url())
 
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    """Log in using Lincoln email and password."""
+    """Authenticate users using their Lincoln email and password."""
 
     if "user_id" in session:
         return redirect(user_home_url())
 
     if request.method == "POST":
-        email = request.form.get("email", "").strip().lower()
-        password = request.form.get("password", "")
+        email = request.form.get(
+            "email",
+            "",
+        ).strip().lower()
+
+        password = request.form.get(
+            "password",
+            "",
+        )
 
         if not email or not password:
             flash(
@@ -201,6 +226,7 @@ def login():
                 password_invalid=True,
             )
 
+        # Clear any previous session data.
         session.clear()
 
         session["loggedin"] = True
@@ -222,73 +248,94 @@ def login():
 
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
-    """Register a new student or staff account."""
+    """Register a new student or staff user."""
 
     if "user_id" in session:
         return redirect(user_home_url())
 
     if request.method == "POST":
-        email = request.form.get("email", "").strip().lower()
+        email = request.form.get(
+            "email",
+            "",
+        ).strip().lower()
+
         first_name = request.form.get(
             "first_name",
             "",
         ).strip()
+
         last_name = request.form.get(
             "last_name",
             "",
         ).strip()
+
         position = request.form.get(
             "position",
             "",
         ).strip()
-        password = request.form.get("password", "")
+
+        password = request.form.get(
+            "password",
+            "",
+        )
+
         confirm_password = request.form.get(
             "confirm_password",
             "",
         )
+
         profile_picture_file = request.files.get(
             "profile_picture"
         )
 
         errors = {}
 
+        # Validate first name.
         if not first_name:
             errors["first_name_error"] = (
                 "First name is required."
             )
+
         elif len(first_name) > 100:
             errors["first_name_error"] = (
                 "First name cannot exceed 100 characters."
             )
 
+        # Validate last name.
         if not last_name:
             errors["last_name_error"] = (
                 "Last name is required."
             )
+
         elif len(last_name) > 100:
             errors["last_name_error"] = (
                 "Last name cannot exceed 100 characters."
             )
 
+        # Validate position.
         if not position:
             errors["position_error"] = (
                 "Position is required."
             )
+
         elif len(position) > 150:
             errors["position_error"] = (
                 "Position cannot exceed 150 characters."
             )
 
+        # Validate email and determine role.
         user_role = None
 
         if not email:
             errors["email_error"] = (
                 "Email address is required."
             )
+
         elif len(email) > 254:
             errors["email_error"] = (
                 "Email address cannot exceed 254 characters."
             )
+
         elif not re.fullmatch(
             r"[^@\s]+@[^@\s]+\.[^@\s]+",
             email,
@@ -296,6 +343,7 @@ def signup():
             errors["email_error"] = (
                 "Enter a valid email address."
             )
+
         else:
             user_role = determine_user_role(email)
 
@@ -305,20 +353,24 @@ def signup():
                     "or an @lincoln.ac.nz staff email."
                 )
 
+        # Validate password.
         password_error = validate_password(password)
 
         if password_error:
             errors["password_error"] = password_error
 
+        # Confirm password.
         if not confirm_password:
             errors["confirm_password_error"] = (
                 "Please enter the password again."
             )
+
         elif password != confirm_password:
             errors["confirm_password_error"] = (
                 "The two passwords do not match."
             )
 
+        # Check email uniqueness.
         if email and "email_error" not in errors:
             with db.get_cursor() as cursor:
                 cursor.execute(
@@ -338,6 +390,7 @@ def signup():
                     "this email address."
                 )
 
+        # Validate optional profile picture.
         if (
             profile_picture_file
             and profile_picture_file.filename
@@ -347,7 +400,7 @@ def signup():
             ):
                 errors["profile_picture_error"] = (
                     "Profile picture must be PNG, JPG, "
-                    "JPEG, GIF, or WEBP."
+                    "JPEG, GIF or WEBP."
                 )
 
         if errors:
@@ -362,6 +415,7 @@ def signup():
 
         profile_picture_filename = None
 
+        # Save optional profile picture.
         if (
             profile_picture_file
             and profile_picture_file.filename
@@ -381,7 +435,7 @@ def signup():
                 email.split("@")[0],
             )
 
-            random_part = os.urandom(6).hex()
+            random_part = os.urandom(8).hex()
 
             profile_picture_filename = (
                 f"{email_prefix}_{random_part}."
@@ -403,40 +457,54 @@ def signup():
             ).decode("utf-8")
         )
 
-        with db.get_cursor() as cursor:
-            cursor.execute(
-                """
-                INSERT INTO users (
-                    email,
-                    first_name,
-                    last_name,
-                    position,
-                    profile_picture,
-                    password_hash,
-                    user_role,
-                    status
+        try:
+            with db.get_cursor() as cursor:
+                cursor.execute(
+                    """
+                    INSERT INTO users (
+                        email,
+                        first_name,
+                        last_name,
+                        position,
+                        profile_picture,
+                        password_hash,
+                        user_role,
+                        status
+                    )
+                    VALUES (
+                        %s,
+                        %s,
+                        %s,
+                        %s,
+                        %s,
+                        %s,
+                        %s,
+                        'active'
+                    );
+                    """,
+                    (
+                        email,
+                        first_name,
+                        last_name,
+                        position,
+                        profile_picture_filename,
+                        password_hash,
+                        user_role,
+                    ),
                 )
-                VALUES (
-                    %s,
-                    %s,
-                    %s,
-                    %s,
-                    %s,
-                    %s,
-                    %s,
-                    'active'
-                );
-                """,
-                (
-                    email,
-                    first_name,
-                    last_name,
-                    position,
+
+        except Exception:
+            # Remove the uploaded image if registration fails.
+            if profile_picture_filename:
+                uploaded_file_path = os.path.join(
+                    app.config["PROFILE_UPLOAD_FOLDER"],
                     profile_picture_filename,
-                    password_hash,
-                    user_role,
-                ),
-            )
+                )
+
+                if os.path.isfile(uploaded_file_path):
+                    os.remove(uploaded_file_path)
+
+            raise
 
         flash(
             "Your LU-TODO account has been created. "
@@ -449,51 +517,9 @@ def signup():
     return render_template("signup.html")
 
 
-@app.route("/profile")
-@login_required
-def profile():
-    """Display the current user's profile."""
-
-    with db.get_cursor() as cursor:
-        cursor.execute(
-            """
-            SELECT
-                user_id,
-                email,
-                first_name,
-                last_name,
-                position,
-                profile_picture,
-                user_role,
-                status
-            FROM users
-            WHERE user_id = %s;
-            """,
-            (session["user_id"],),
-        )
-
-        user_profile = cursor.fetchone()
-
-    if user_profile is None:
-        session.clear()
-
-        flash(
-            "Your account could not be found. "
-            "Please log in again.",
-            "danger",
-        )
-
-        return redirect(url_for("login"))
-
-    return render_template(
-        "profile.html",
-        profile=user_profile,
-    )
-
-
 @app.route("/logout")
 def logout():
-    """Log out and return to the login page."""
+    """Log the current user out."""
 
     session.clear()
 
