@@ -1,0 +1,870 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1"
+    >
+
+    <title>Project Members | LU-TODO</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    >
+
+    <style>
+        :root {
+            --lu-green: #123c34;
+            --lu-green-dark: #0d2e28;
+            --lu-green-light: #dcebe6;
+            --admin-gold: #d7a928;
+            --page-background: #f5f7f6;
+        }
+
+        body {
+            min-height: 100vh;
+            background-color: var(--page-background);
+        }
+
+        .navbar-lu {
+            background-color: var(--lu-green);
+        }
+
+        .admin-badge {
+            color: #212529;
+            background-color: var(--admin-gold);
+        }
+
+        .page-header {
+            color: white;
+            border-radius: 1rem;
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--lu-green),
+                    #1d5c50
+                );
+        }
+
+        .btn-lu {
+            color: white;
+            background-color: var(--lu-green);
+            border-color: var(--lu-green);
+        }
+
+        .btn-lu:hover,
+        .btn-lu:focus {
+            color: white;
+            background-color: var(--lu-green-dark);
+            border-color: var(--lu-green-dark);
+        }
+
+        .member-card,
+        .sharing-card {
+            border: 0;
+            border-radius: 1rem;
+        }
+
+        .profile-picture,
+        .profile-placeholder {
+            width: 72px;
+            height: 72px;
+            flex-shrink: 0;
+            border-radius: 50%;
+        }
+
+        .profile-picture {
+            object-fit: cover;
+            border: 3px solid var(--lu-green);
+        }
+
+        .profile-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--lu-green);
+            background-color: var(--lu-green-light);
+            border: 3px solid var(--lu-green);
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        .member-item {
+            border: 1px solid #dee2e6;
+            border-radius: 0.85rem;
+        }
+
+        .user-selection {
+            max-height: 540px;
+            overflow-y: auto;
+            padding-right: 0.25rem;
+        }
+
+        .user-option {
+            display: block;
+            border: 1px solid #dee2e6;
+            border-radius: 0.8rem;
+            cursor: pointer;
+            transition:
+                background-color 0.15s ease,
+                border-color 0.15s ease;
+        }
+
+        .user-option:hover {
+            background-color: #f7faf9;
+            border-color: var(--lu-green);
+        }
+
+        .empty-state {
+            padding: 3rem 1rem;
+            text-align: center;
+            border: 2px dashed #ced7d3;
+            border-radius: 0.9rem;
+            background-color: white;
+        }
+
+        .search-input {
+            border-radius: 0.75rem;
+        }
+
+        .role-filter {
+            min-width: 150px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-lu">
+
+        <div class="container">
+
+            <a
+                class="navbar-brand fw-bold"
+                href="{{ url_for('admin_home') }}"
+            >
+                LU-TODO
+            </a>
+
+            <span class="badge admin-badge ms-2">
+                Administrator
+            </span>
+
+            <button
+                class="navbar-toggler ms-auto"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#adminMembersNavigation"
+                aria-controls="adminMembersNavigation"
+                aria-expanded="false"
+                aria-label="Toggle navigation"
+            >
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div
+                class="collapse navbar-collapse"
+                id="adminMembersNavigation"
+            >
+
+                <ul class="navbar-nav ms-auto align-items-lg-center">
+
+                    <li class="nav-item">
+
+                        <a
+                            class="nav-link"
+                            href="{{ url_for('admin_home') }}"
+                        >
+                            <i class="bi bi-grid me-1"></i>
+                            Dashboard
+                        </a>
+
+                    </li>
+
+                    <li class="nav-item">
+
+                        <a
+                            class="nav-link"
+                            href="{{ url_for('profile') }}"
+                        >
+                            <i class="bi bi-person me-1"></i>
+                            Profile
+                        </a>
+
+                    </li>
+
+                    <li class="nav-item ms-lg-2 mt-2 mt-lg-0">
+
+                        <a
+                            class="btn btn-light"
+                            href="{{ url_for('logout') }}"
+                        >
+                            <i class="bi bi-box-arrow-right me-1"></i>
+                            Log out
+                        </a>
+
+                    </li>
+
+                </ul>
+
+            </div>
+
+        </div>
+
+    </nav>
+
+
+    <main class="container py-4 py-lg-5">
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+
+            {% if messages %}
+
+                {% for category, message in messages %}
+
+                    <div
+                        class="alert alert-{{ category }} alert-dismissible fade show"
+                        role="alert"
+                    >
+                        {{ message }}
+
+                        <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="alert"
+                            aria-label="Close"
+                        ></button>
+                    </div>
+
+                {% endfor %}
+
+            {% endif %}
+
+        {% endwith %}
+
+
+        <section class="page-header p-4 p-lg-5 mb-4">
+
+            <a
+                href="{{ url_for('admin_home') }}"
+                class="text-white text-decoration-none opacity-75"
+            >
+                <i class="bi bi-arrow-left me-1"></i>
+                Admin dashboard
+            </a>
+
+            <div
+                class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mt-3"
+            >
+
+                <div>
+
+                    <span class="badge text-bg-light mb-2">
+                        Admin-owned project
+                    </span>
+
+                    <h1 class="display-6 fw-bold mb-2">
+                        {{ project.project_name }}
+                    </h1>
+
+                    <p class="mb-0 opacity-75">
+
+                        {% if project.description %}
+
+                            {{ project.description }}
+
+                        {% else %}
+
+                            No project description.
+
+                        {% endif %}
+
+                    </p>
+
+                </div>
+
+
+                <a
+                    href="{{ url_for(
+                        'admin_project_detail',
+                        project_id=project.project_id
+                    ) }}"
+                    class="btn btn-light btn-lg"
+                >
+                    <i class="bi bi-list-task me-1"></i>
+                    View tasks
+                </a>
+
+            </div>
+
+        </section>
+
+
+        <div class="row g-4">
+
+            <!-- Current project members -->
+            <section class="col-lg-7">
+
+                <div class="card member-card shadow-sm">
+
+                    <div class="card-body p-4">
+
+                        <div
+                            class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4"
+                        >
+
+                            <div>
+
+                                <h2 class="h4 mb-1">
+                                    Current members
+                                </h2>
+
+                                <p class="text-secondary mb-0">
+
+                                    {{ members | length }}
+
+                                    member{% if members | length != 1 %}s{% endif %}
+
+                                </p>
+
+                            </div>
+
+                            <span class="fs-2 text-secondary">
+                                <i class="bi bi-people"></i>
+                            </span>
+
+                        </div>
+
+
+                        {% if members %}
+
+                            <div class="d-flex flex-column gap-3">
+
+                                {% for member in members %}
+
+                                    <article class="member-item p-3">
+
+                                        <div
+                                            class="d-flex flex-column flex-sm-row align-items-sm-center gap-3"
+                                        >
+
+                                            {% if member.profile_picture %}
+
+                                                <img
+                                                    src="{{ url_for(
+                                                        'static',
+                                                        filename='profile_pictures/' ~ member.profile_picture
+                                                    ) }}"
+                                                    alt="Profile picture for {{ member.first_name }} {{ member.last_name }}"
+                                                    class="profile-picture"
+                                                >
+
+                                            {% else %}
+
+                                                <div
+                                                    class="profile-placeholder"
+                                                    aria-label="Profile placeholder"
+                                                >
+                                                    {{ member.first_name[0] | upper }}
+                                                    {{ member.last_name[0] | upper }}
+                                                </div>
+
+                                            {% endif %}
+
+
+                                            <div class="flex-grow-1">
+
+                                                <div
+                                                    class="d-flex flex-wrap align-items-center gap-2"
+                                                >
+
+                                                    <h3 class="h5 mb-0">
+                                                        {{ member.first_name }}
+                                                        {{ member.last_name }}
+                                                    </h3>
+
+                                                    {% if member.user_role == "student" %}
+
+                                                        <span class="badge text-bg-info">
+                                                            Student
+                                                        </span>
+
+                                                    {% elif member.user_role == "staff" %}
+
+                                                        <span class="badge text-bg-primary">
+                                                            Staff
+                                                        </span>
+
+                                                    {% else %}
+
+                                                        <span class="badge text-bg-warning">
+                                                            Admin
+                                                        </span>
+
+                                                    {% endif %}
+
+
+                                                    {% if member.status == "active" %}
+
+                                                        <span class="badge text-bg-success">
+                                                            Active
+                                                        </span>
+
+                                                    {% else %}
+
+                                                        <span class="badge text-bg-secondary">
+                                                            Inactive
+                                                        </span>
+
+                                                    {% endif %}
+
+                                                </div>
+
+
+                                                <p class="text-secondary mb-1 mt-2">
+                                                    {{ member.position }}
+                                                </p>
+
+                                                <p class="mb-0">
+
+                                                    <a href="mailto:{{ member.email }}">
+                                                        {{ member.email }}
+                                                    </a>
+
+                                                </p>
+
+                                            </div>
+
+
+                                            <form
+                                                method="post"
+                                                action="{{ url_for(
+                                                    'admin_remove_project_member',
+                                                    project_id=project.project_id,
+                                                    user_id=member.user_id
+                                                ) }}"
+                                                onsubmit="return confirm(
+                                                    'Remove this user from the project?'
+                                                );"
+                                            >
+
+                                                <button
+                                                    type="submit"
+                                                    class="btn btn-outline-danger"
+                                                >
+                                                    <i class="bi bi-person-dash me-1"></i>
+                                                    Remove
+                                                </button>
+
+                                            </form>
+
+                                        </div>
+
+                                    </article>
+
+                                {% endfor %}
+
+                            </div>
+
+                        {% else %}
+
+                            <div class="empty-state">
+
+                                <i
+                                    class="bi bi-person-plus display-4 text-secondary"
+                                ></i>
+
+                                <h3 class="h5 mt-3">
+                                    No project members
+                                </h3>
+
+                                <p class="text-secondary mb-0">
+                                    Add users from the sharing panel.
+                                </p>
+
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- Add project members -->
+            <section class="col-lg-5">
+
+                <div class="card sharing-card shadow-sm">
+
+                    <div class="card-body p-4">
+
+                        <h2 class="h4 mb-1">
+                            Share project
+                        </h2>
+
+                        <p class="text-secondary">
+                            Select one or more students, staff members,
+                            or administrators.
+                        </p>
+
+
+                        {% if available_users %}
+
+                            <div class="row g-2 mb-3">
+
+                                <div class="col-12">
+
+                                    <div class="input-group">
+
+                                        <span class="input-group-text">
+                                            <i class="bi bi-search"></i>
+                                        </span>
+
+                                        <input
+                                            type="search"
+                                            class="form-control search-input"
+                                            id="userSearch"
+                                            placeholder="Search by name, email, or position"
+                                            aria-label="Search available users"
+                                        >
+
+                                    </div>
+
+                                </div>
+
+
+                                <div class="col-12">
+
+                                    <select
+                                        class="form-select role-filter"
+                                        id="roleFilter"
+                                        aria-label="Filter users by role"
+                                    >
+
+                                        <option value="all">
+                                            All roles
+                                        </option>
+
+                                        <option value="student">
+                                            Students
+                                        </option>
+
+                                        <option value="staff">
+                                            Staff
+                                        </option>
+
+                                        <option value="admin">
+                                            Administrators
+                                        </option>
+
+                                    </select>
+
+                                </div>
+
+                            </div>
+
+
+                            <form
+                                method="post"
+                                action="{{ url_for(
+                                    'admin_add_project_members',
+                                    project_id=project.project_id
+                                ) }}"
+                            >
+
+                                <div
+                                    class="user-selection d-flex flex-column gap-2 mb-3"
+                                    id="availableUserList"
+                                >
+
+                                    {% for user in available_users %}
+
+                                        <label
+                                            class="user-option p-3 available-user"
+                                            for="user_{{ user.user_id }}"
+                                            data-role="{{ user.user_role }}"
+                                            data-search="{{ (
+                                                user.first_name ~ ' ' ~
+                                                user.last_name ~ ' ' ~
+                                                user.email ~ ' ' ~
+                                                user.position
+                                            ) | lower }}"
+                                        >
+
+                                            <div
+                                                class="d-flex align-items-start gap-3"
+                                            >
+
+                                                <input
+                                                    class="form-check-input mt-1"
+                                                    type="checkbox"
+                                                    id="user_{{ user.user_id }}"
+                                                    name="user_ids"
+                                                    value="{{ user.user_id }}"
+                                                >
+
+
+                                                <div class="flex-grow-1">
+
+                                                    <div
+                                                        class="d-flex flex-wrap align-items-center gap-2"
+                                                    >
+
+                                                        <strong>
+                                                            {{ user.first_name }}
+                                                            {{ user.last_name }}
+                                                        </strong>
+
+
+                                                        {% if user.user_role == "student" %}
+
+                                                            <span class="badge text-bg-info">
+                                                                Student
+                                                            </span>
+
+                                                        {% elif user.user_role == "staff" %}
+
+                                                            <span class="badge text-bg-primary">
+                                                                Staff
+                                                            </span>
+
+                                                        {% else %}
+
+                                                            <span class="badge text-bg-warning">
+                                                                Admin
+                                                            </span>
+
+                                                        {% endif %}
+
+
+                                                        {% if user.status != "active" %}
+
+                                                            <span class="badge text-bg-secondary">
+                                                                Inactive
+                                                            </span>
+
+                                                        {% endif %}
+
+                                                    </div>
+
+
+                                                    <div class="small text-secondary mt-1">
+                                                        {{ user.position }}
+                                                    </div>
+
+                                                    <div class="small">
+                                                        {{ user.email }}
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+
+                                        </label>
+
+                                    {% endfor %}
+
+                                </div>
+
+
+                                <div
+                                    id="noSearchResults"
+                                    class="alert alert-light border d-none"
+                                    role="status"
+                                >
+                                    No users match your search.
+                                </div>
+
+
+                                <div
+                                    class="d-flex justify-content-between align-items-center mb-3"
+                                >
+
+                                    <button
+                                        type="button"
+                                        class="btn btn-sm btn-outline-secondary"
+                                        id="selectVisibleUsers"
+                                    >
+                                        Select visible
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        class="btn btn-sm btn-outline-secondary"
+                                        id="clearSelections"
+                                    >
+                                        Clear selection
+                                    </button>
+
+                                </div>
+
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-lu w-100"
+                                >
+                                    <i class="bi bi-person-plus me-1"></i>
+                                    Add selected members
+                                </button>
+
+                            </form>
+
+                        {% else %}
+
+                            <div class="empty-state">
+
+                                <i
+                                    class="bi bi-check-circle display-4 text-success"
+                                ></i>
+
+                                <h3 class="h5 mt-3">
+                                    No users available
+                                </h3>
+
+                                <p class="text-secondary mb-0">
+                                    Every other user is already a member.
+                                </p>
+
+                            </div>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </div>
+
+    </main>
+
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    ></script>
+
+
+    {% if available_users %}
+
+        <script>
+            const searchInput =
+                document.getElementById("userSearch");
+
+            const roleFilter =
+                document.getElementById("roleFilter");
+
+            const userOptions =
+                document.querySelectorAll(".available-user");
+
+            const noSearchResults =
+                document.getElementById("noSearchResults");
+
+            const selectVisibleButton =
+                document.getElementById("selectVisibleUsers");
+
+            const clearSelectionsButton =
+                document.getElementById("clearSelections");
+
+
+            function filterAvailableUsers() {
+                const searchValue =
+                    searchInput.value.trim().toLowerCase();
+
+                const selectedRole =
+                    roleFilter.value;
+
+                let visibleCount = 0;
+
+                userOptions.forEach(function (option) {
+                    const searchableText =
+                        option.dataset.search;
+
+                    const userRole =
+                        option.dataset.role;
+
+                    const matchesSearch =
+                        searchableText.includes(searchValue);
+
+                    const matchesRole =
+                        selectedRole === "all"
+                        || userRole === selectedRole;
+
+                    const shouldShow =
+                        matchesSearch && matchesRole;
+
+                    option.classList.toggle(
+                        "d-none",
+                        !shouldShow
+                    );
+
+                    if (shouldShow) {
+                        visibleCount += 1;
+                    }
+                });
+
+                noSearchResults.classList.toggle(
+                    "d-none",
+                    visibleCount !== 0
+                );
+            }
+
+
+            searchInput.addEventListener(
+                "input",
+                filterAvailableUsers
+            );
+
+            roleFilter.addEventListener(
+                "change",
+                filterAvailableUsers
+            );
+
+
+            selectVisibleButton.addEventListener(
+                "click",
+                function () {
+                    userOptions.forEach(function (option) {
+                        if (!option.classList.contains("d-none")) {
+                            const checkbox =
+                                option.querySelector(
+                                    'input[type="checkbox"]'
+                                );
+
+                            checkbox.checked = true;
+                        }
+                    });
+                }
+            );
+
+
+            clearSelectionsButton.addEventListener(
+                "click",
+                function () {
+                    userOptions.forEach(function (option) {
+                        const checkbox =
+                            option.querySelector(
+                                'input[type="checkbox"]'
+                            );
+
+                        checkbox.checked = false;
+                    });
+                }
+            );
+        </script>
+
+    {% endif %}
+
+</body>
+</html>
