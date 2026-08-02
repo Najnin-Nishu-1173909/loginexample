@@ -26,3 +26,4 @@ from . import staff
 from . import staff_tasks
 from . import staff_sharing
 from . import admin
+from . import admin_tasks
